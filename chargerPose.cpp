@@ -36,22 +36,16 @@ namespace CHARGERPOSES
     }
 
     VECTOR_2D chargerRadDetect::getRads(){
-        LaserInfo mLaserInfo;
-        mLaserInfo.mLaserData.resize(360);
-        HANDLINELASER::CHandleLineLaser::GetInstance().GetLidar(mLaserInfo);
-
-        std::vector<std::vector<GridOccupyType>> mMapData;
-        MAP_UPDATE::CMapUpdate::GetInstance().GetMap(mMapData);
-
-        SLAM::RealtimePosition cur_pose;
-        NodeInfo cur_node;
-        MAP_UPDATE::MapParam mMapParam_RAD;
-        auto mapInfo = MAP_UPDATE::CMapUpdate::GetInstance().getJpsBaseMap(mMapParam_RAD);
-        SLAM::CSlam::GetInstance().GetPoseEstimate(cur_pose);
-        MAP_UPDATE::CMapUpdate::GetInstance().PoseToCoordinateBk(cur_pose, cur_node, mapInfo);
-
-
+        MapInfo map;
+        MAP_UPDATE::CMapUpdate::GetInstance().GetMap(eGlobalMap, map);
         
+        NodeInfo curNode;
+        SLAM::RealtimePosition curPose;
+        SLAM::CSlam::GetInstance().GetPoseEstimate(curPose);
+        MAP_UPDATE::CMapUpdate::GetInstance().PoseToCoordinateBk(curPose, curNode, map);
+
+        LaserInfo lidarInfo;
+        HANDLINELASER::CHandleLineLaser::GetInstance().GetLidar(lidarInfo);       
     }
 
 }
