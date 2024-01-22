@@ -3,6 +3,79 @@
 
 namespace CHARGERPOSES
 {  
+	class CThread {
+	public:
+	    CThread() {};
+	
+	    virtual ~CThread() {};
+	
+	//		int thread_wait(void);
+	//		int thread_wait(int ms);
+	//		bool thread_signal(void *data);
+	//		bool thread_del();
+	//		bool start();
+	    bool start(const char *name) {
+		printf("\t\tthread: %s \t~ \t%u\n", name, std::this_thread::get_id());
+		int ret;
+		pthread_attr_t thread_attr;
+	
+		if (m_bCreate) {
+		    return true;
+		}
+	
+		ret = pthread_create(&handle, NULL, StaticThreadFunc, this);
+	
+		if (ret != 0) {
+		    return false;
+		}
+	
+		m_bCreate = true;
+	
+	    };
+	
+	    virtual void run() {};
+	
+	    void join() {
+		int *thread_ret = NULL;
+		pthread_join(handle, (void **) &thread_ret);
+	    };
+	    void cancel();
+	    void pexit();
+	
+	private:
+	    static void *StaticThreadFunc(void *arg) {
+		CThread *pthis = static_cast<CThread *>(arg);
+		pthis->run();
+	    };
+	    pthread_t handle;
+	    bool m_bCreate;
+	    int thread_end = 0;
+	
+	protected:
+	    std::condition_variable thread_cv;
+	    std::mutex thread_mtx;
+			virtual bool set_signal(void * data){};
+			virtual bool check_signal(){};
+	};
+	
+	bool flag{false};
+	
+　　　class chargerRadPoses : public CThread {
+	    static chargerRadPoses m_Instance;
+	
+	    void run() override;
+	
+	public:
+	    chargerRadPoses() {};
+	
+	    ~chargerRadPoses() {};
+	
+	    static chargerRadPoses &GetInstance() { return m_Instance; }//返回类本身
+	    void startChargerDetect();
+	
+	    void stopChargerDetect();
+	};
+
     chargerRadPoses chargerRadPoses::m_Instance;
 
     void chargerRadPoses::startChargerDetect(){
